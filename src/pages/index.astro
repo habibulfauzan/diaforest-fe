@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HomePage from '../components/HomePage';
+---
+
+<Layout
+  title="DiaForest - Home"
+  description="Quick, free diabetes risk assessment using machine learning. Get your personalized health insights in minutes with our science-backed prediction tool."
+  canonicalPath="/"
+>
+  <HomePage client:load />
+</Layout>
