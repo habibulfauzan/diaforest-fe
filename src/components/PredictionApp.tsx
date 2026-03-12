@@ -225,15 +225,15 @@ const PredictionApp = () => {
   ): { level: string; color: string; bgColor: string; message: string } => {
     if (probability < 30)
       return {
-        level: 'Kondisi Terkontrol',
+        level: 'Tidak Terindikasi Diabetes',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         message:
-          'Berdasarkan metrik klinis yang telah Anda masukkan, sistem menemukan indikasi rendah yang mengarah pada diabetes. Pertahankan gaya hidup sehat Anda!',
+          'Berdasarkan data yang telah Anda masukkan, sistem menemukan indikasi rendah yang mengarah pada diabetes. Pertahankan gaya hidup sehat Anda!',
       };
     if (probability < 60)
       return {
-        level: 'Indikasi Pradiabetes',
+        level: 'Indikasi Awal Diabetes',
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-100',
         message:
