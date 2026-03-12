@@ -230,15 +230,13 @@ const Explore = () => {
                 Rencana Aksi Anda
               </h2>
               <p className="text-muted-foreground mb-8">
-                Langkah kecil mengarah pada perubahan besar. Beginilah cara memulainya:
+                Langkah kecil mengarah pada perubahan besar. Beginilah cara
+                memulainya:
               </p>
 
               <div className="grid gap-6 md:grid-cols-3">
                 {actionPlan.map((plan, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-secondary/10 rounded-xl p-6"
-                  >
+                  <div key={idx} className="bg-secondary/10 rounded-xl p-6">
                     <div className="mb-4 flex items-center gap-2">
                       <div className="bg-primary/20 text-primary flex h-10 w-10 items-center justify-center rounded-full">
                         {plan.icon}
@@ -270,16 +268,16 @@ const Explore = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-primary/10 to-secondary/10 mb-12 rounded-2xl p-8 text-center"
+          className="from-primary/10 to-secondary/10 mb-12 rounded-2xl bg-gradient-to-r p-8 text-center"
         >
           <h3 className="font-heading text-foreground mb-3 text-2xl font-bold">
             Ingat
           </h3>
           <p className="text-muted-foreground mx-auto max-w-2xl leading-relaxed">
-            Pencegahan adalah perjalanan, bukan tujuan. Setiap pilihan sehat yang 
-            Anda buat hari ini adalah investasi untuk masa depan Anda. Konsultasikan 
-            dengan dokter sebelum membuat perubahan signifikan pada diet atau rutinitas 
-            olahraga Anda.
+            Pencegahan adalah perjalanan, bukan tujuan. Setiap pilihan sehat
+            yang Anda buat hari ini adalah investasi untuk masa depan Anda.
+            Konsultasikan dengan dokter sebelum membuat perubahan signifikan
+            pada diet atau rutinitas olahraga Anda.
           </p>
         </motion.div>
 
@@ -292,12 +290,9 @@ const Explore = () => {
         >
           <a href="/app">
             <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-4 font-bold shadow-lg transition-all hover:scale-105">
-              Cek Tingkat Risiko Anda
+              Cek Status Anda Sekarang
             </button>
           </a>
-          <p className="text-muted-foreground mt-4 text-sm">
-            Ketahui risiko Anda untuk mengambil tindakan preventif
-          </p>
         </motion.div>
       </div>
     </div>

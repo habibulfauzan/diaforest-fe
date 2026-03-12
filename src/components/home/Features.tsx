@@ -60,8 +60,8 @@ const Features = () => {
                     Hasil Informatif
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Memahami faktor risiko Anda dengan penjelasan yang mudah
-                    dipahami untuk langkah preventif yang tepat.
+                    Memahami status kesehatan Anda dengan penjelasan yang mudah
+                    dipahami untuk langkah preventif maupun medis yang tepat.
                   </p>
                 </div>
               </div>

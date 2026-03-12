@@ -32,7 +32,7 @@ const Hero = () => {
           <h1 className="font-heading text-foreground mb-6 text-5xl leading-[1.1] font-bold md:text-7xl">
             Ketahui{' '}
             <span className="text-primary relative inline-block">
-              Risiko Anda
+              Status Diabetes
               <svg
                 className="text-accent absolute -bottom-1 left-0 -z-10 h-3 w-full"
                 viewBox="0 0 100 10"
@@ -50,8 +50,9 @@ const Hero = () => {
             Sejak Dini
           </h1>
           <p className="text-muted-foreground md:text-md max-w-md text-sm leading-relaxed">
-            Sistem prediksi diabetes berbasis Random Forest dengan akurasi
-            95,8%. Hasil dalam hitungan detik, gratis, dan mudah digunakan.
+            Sistem deteksi dini diabetes berbasis algoritma Random Forest dengan
+            akurasi 95,8%. Hasil dalam hitungan detik, gratis, dan mudah
+            digunakan.
           </p>
 
           {/* Trust Badges */}
@@ -64,7 +65,7 @@ const Hero = () => {
             {[
               {
                 icon: CheckCircle,
-                label: 'Akurasi 96%',
+                label: 'Akurasi 95,8%',
                 color: 'text-purple-600',
               },
               { icon: Lock, label: 'Privat & Gratis', color: 'text-green-600' },

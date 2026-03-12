@@ -5,9 +5,9 @@ const CTACards = () => {
   const ctaItems = [
     {
       id: 'cta-start-app',
-      title: 'Mulai Prediksi',
+      title: 'Mulai Deteksi',
       description:
-        'Dapatkan hasil prediksi risiko diabetes personal Anda hanya dalam hitungan detik.',
+        'Dapatkan hasil deteksi indikasi diabetes personal Anda hanya dalam hitungan detik.',
       href: '/app',
       testId: 'button-cta-app',
       icon: <Activity className="text-primary h-8 w-8" />,

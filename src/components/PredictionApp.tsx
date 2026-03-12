@@ -19,6 +19,7 @@ interface FormData {
   smoking_history: string;
   weight: string;
   height: string;
+  bmiDirect: string;
   HbA1c_level: string;
   blood_glucose_level: string;
 }
@@ -42,6 +43,7 @@ const PredictionApp = () => {
     smoking_history: '',
     weight: '',
     height: '',
+    bmiDirect: '',
     HbA1c_level: '',
     blood_glucose_level: '',
   });
@@ -51,6 +53,7 @@ const PredictionApp = () => {
     {},
   );
   const [calculatedBMI, setCalculatedBMI] = useState<number | null>(null);
+  const [useDirectBMI, setUseDirectBMI] = useState(false);
 
   // Function to calculate BMI
   const calculateBMI = (weight: string, height: string): number | null => {
@@ -85,8 +88,7 @@ const PredictionApp = () => {
     if (!formData.age) newErrors.age = 'Usia harus diisi';
     else {
       const age = parseFloat(formData.age);
-      if (age < 18 || age > 120)
-        newErrors.age = 'Usia harus antara 18-120 tahun';
+      if (age < 0 || age > 120) newErrors.age = 'Usia harus minimal 1 tahun';
     }
     if (!formData.hypertension)
       newErrors.hypertension = 'Pilihan harus dipilih';
@@ -95,24 +97,30 @@ const PredictionApp = () => {
     if (!formData.smoking_history)
       newErrors.smoking_history = 'Riwayat merokok harus dipilih';
 
-    // Validate weight and height
-    if (!formData.weight) newErrors.weight = 'Berat badan harus diisi';
-    else {
-      const weight = parseFloat(formData.weight);
-      if (weight < 20 || weight > 300)
-        newErrors.weight = 'Berat badan harus antara 20-300 kg';
-    }
-
-    if (!formData.height) newErrors.height = 'Tinggi badan harus diisi';
-    else {
-      const height = parseFloat(formData.height);
-      if (height < 100 || height > 250)
-        newErrors.height = 'Tinggi badan harus antara 100-250 cm';
-    }
-
-    // Validate calculated BMI
-    if (calculatedBMI && (calculatedBMI < 10 || calculatedBMI > 60)) {
-      newErrors.weight = 'BMI hasil perhitungan tidak valid (harus 10-60)';
+    // Validate BMI: either weight+height or direct BMI
+    if (useDirectBMI) {
+      if (!formData.bmiDirect) newErrors.bmiDirect = 'BMI harus diisi';
+      else {
+        const bmi = parseFloat(formData.bmiDirect);
+        if (bmi < 10 || bmi > 60)
+          newErrors.bmiDirect = 'BMI harus antara 10-60';
+      }
+    } else {
+      if (!formData.weight) newErrors.weight = 'Berat badan harus diisi';
+      else {
+        const weight = parseFloat(formData.weight);
+        if (weight < 20 || weight > 300)
+          newErrors.weight = 'Berat badan harus antara 20-300 kg';
+      }
+      if (!formData.height) newErrors.height = 'Tinggi badan harus diisi';
+      else {
+        const height = parseFloat(formData.height);
+        if (height < 100 || height > 250)
+          newErrors.height = 'Tinggi badan harus antara 100-250 cm';
+      }
+      if (calculatedBMI && (calculatedBMI < 10 || calculatedBMI > 60)) {
+        newErrors.weight = 'BMI hasil perhitungan tidak valid (harus 10-60)';
+      }
     }
 
     if (!formData.HbA1c_level)
@@ -126,8 +134,9 @@ const PredictionApp = () => {
       newErrors.blood_glucose_level = 'Gula darah harus diisi';
     else {
       const glucose = parseFloat(formData.blood_glucose_level);
-      if (glucose < 50 || glucose > 500)
-        newErrors.blood_glucose_level = 'Gula darah harus antara 50-500 mg/dL';
+      // if (glucose < 50 || glucose > 500)
+      if (glucose < 50)
+        newErrors.blood_glucose_level = 'Gula darah harus minimal 50 mg/dL';
     }
 
     setErrors(newErrors);
@@ -140,10 +149,15 @@ const PredictionApp = () => {
       return;
     }
 
-    // Calculate BMI from weight and height
-    const bmi = calculateBMI(formData.weight, formData.height);
-    if (!bmi) {
-      setError('Gagal menghitung BMI. Periksa berat dan tinggi badan Anda.');
+    const bmi = useDirectBMI
+      ? parseFloat(formData.bmiDirect)
+      : calculateBMI(formData.weight, formData.height);
+    if (bmi == null || bmi < 10 || bmi > 60) {
+      setError(
+        useDirectBMI
+          ? 'BMI tidak valid. Masukkan nilai antara 10-60.'
+          : 'Gagal menghitung BMI. Periksa berat dan tinggi badan Anda.',
+      );
       return;
     }
 
@@ -165,7 +179,7 @@ const PredictionApp = () => {
             hypertension: formData.hypertension === 'yes' ? 1 : 0,
             heart_disease: formData.heart_disease === 'yes' ? 1 : 0,
             smoking_history: parseInt(formData.smoking_history),
-            bmi: bmi, // Use calculated BMI
+            bmi,
             HbA1c_level: parseFloat(formData.HbA1c_level),
             blood_glucose_level: parseFloat(formData.blood_glucose_level),
           }),
@@ -195,6 +209,7 @@ const PredictionApp = () => {
       smoking_history: '',
       weight: '',
       height: '',
+      bmiDirect: '',
       HbA1c_level: '',
       blood_glucose_level: '',
     });
@@ -202,6 +217,7 @@ const PredictionApp = () => {
     setError('');
     setErrors({});
     setCalculatedBMI(null);
+    setUseDirectBMI(false);
   };
 
   const getRiskLevel = (
@@ -209,26 +225,26 @@ const PredictionApp = () => {
   ): { level: string; color: string; bgColor: string; message: string } => {
     if (probability < 30)
       return {
-        level: 'Risiko Rendah',
+        level: 'Kondisi Terkontrol',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         message:
-          'Risiko Anda terlihat rendah berdasarkan faktor-faktor ini. Pertahankan gaya hidup sehat Anda!',
+          'Berdasarkan metrik klinis yang telah Anda masukkan, sistem menemukan indikasi rendah yang mengarah pada diabetes. Pertahankan gaya hidup sehat Anda!',
       };
     if (probability < 60)
       return {
-        level: 'Risiko Sedang',
+        level: 'Indikasi Pradiabetes',
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-100',
         message:
-          'Anda memiliki faktor risiko sedang. Pertimbangkan untuk berkonsultasi dengan tenaga kesehatan untuk panduan lebih lanjut.',
+          'Ini bisa menjadi tanda awal pradiabetes. Kami menyarankan Anda untuk mulai mengevaluasi pola makan dan berkonsultasi dengan dokter.',
       };
     return {
-      level: 'Risiko Tinggi',
+      level: 'Indikasi Kuat Diabetes',
       color: 'text-red-600',
       bgColor: 'bg-red-100',
       message:
-        'Anda memiliki faktor risiko yang signifikan. Kami sangat menyarankan untuk segera berkonsultasi dengan dokter.',
+        'Berdasarkan data yang telah Anda masukkan, sistem menemukan indikasi kuat yang mengarah pada diabetes. Harap segera periksakan diri ke dokter untuk evaluasi medis resmi',
     };
   };
 
@@ -261,11 +277,11 @@ const PredictionApp = () => {
             <div className="flex flex-col gap-8 p-8 md:p-12">
               <div className="space-y-2 text-center">
                 <h1 className="font-heading text-foreground text-4xl font-bold">
-                  Prediksi Risiko Diabetes
+                  Deteksi Dini Diabetes
                 </h1>
                 <p className="text-muted-foreground">
-                  Isi data kesehatan Anda untuk mendapatkan hasil prediksi
-                  risiko diabetes
+                  Masukkan data klinis terkini Anda untuk melihat hasil deteksi
+                  awal.
                 </p>
               </div>
 
@@ -476,86 +492,146 @@ const PredictionApp = () => {
                   Metrik Kesehatan
                 </h2>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {/* Weight Input */}
-                  <div>
-                    <label className="text-foreground mb-2 block text-sm font-medium">
-                      Berat Badan *{' '}
-                      <span className="text-muted-foreground">(kg)</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.weight}
-                      onChange={(e) =>
-                        handleWeightHeightChange('weight', e.target.value)
-                      }
-                      className="bg-background border-border text-foreground focus:ring-primary/50 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-                      placeholder="contoh: 70"
-                    />
-                    {errors.weight && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {errors.weight}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Height Input */}
-                  <div>
-                    <label className="text-foreground mb-2 block text-sm font-medium">
-                      Tinggi Badan *{' '}
-                      <span className="text-muted-foreground">(cm)</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={formData.height}
-                      onChange={(e) =>
-                        handleWeightHeightChange('height', e.target.value)
-                      }
-                      className="bg-background border-border text-foreground focus:ring-primary/50 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
-                      placeholder="contoh: 170"
-                    />
-                    {errors.height && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {errors.height}
-                      </p>
-                    )}
+                {/* Toggle: Berat & Tinggi vs Langsung BMI */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-foreground text-sm font-medium">
+                    BMI (Body Mass Index)
+                  </label>
+                  <div className="bg-muted/50 flex rounded-lg p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseDirectBMI(false);
+                        setErrors((e) => ({
+                          ...e,
+                          weight: undefined,
+                          height: undefined,
+                          bmiDirect: undefined,
+                        }));
+                      }}
+                      className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                        !useDirectBMI
+                          ? 'bg-primary text-primary-foreground shadow'
+                          : 'text-foreground/70 hover:text-foreground'
+                      }`}
+                    >
+                      Berat & Tinggi Badan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseDirectBMI(true);
+                        setCalculatedBMI(null);
+                        setErrors((e) => ({
+                          ...e,
+                          weight: undefined,
+                          height: undefined,
+                          bmiDirect: undefined,
+                        }));
+                      }}
+                      className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                        useDirectBMI
+                          ? 'bg-primary text-primary-foreground shadow'
+                          : 'text-foreground/70 hover:text-foreground'
+                      }`}
+                    >
+                      BMI
+                    </button>
                   </div>
                 </div>
 
-                {/* BMI Preview - Auto Calculated */}
-                {calculatedBMI && (
-                  <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                          <CheckCircle className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <span className="text-foreground block text-sm font-bold">
-                            BMI Anda
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            Body Mass Index
+                {!useDirectBMI ? (
+                  <>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div>
+                        <label className="text-foreground mb-2 block text-sm font-medium">
+                          Berat Badan *{' '}
+                          <span className="text-muted-foreground">(kg)</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={formData.weight}
+                          onChange={(e) =>
+                            handleWeightHeightChange('weight', e.target.value)
+                          }
+                          className="bg-background border-border text-foreground focus:ring-primary/50 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
+                          placeholder="contoh: 70"
+                        />
+                        {errors.weight && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {errors.weight}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="text-foreground mb-2 block text-sm font-medium">
+                          Tinggi Badan *{' '}
+                          <span className="text-muted-foreground">(cm)</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={formData.height}
+                          onChange={(e) =>
+                            handleWeightHeightChange('height', e.target.value)
+                          }
+                          className="bg-background border-border text-foreground focus:ring-primary/50 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
+                          placeholder="contoh: 170"
+                        />
+                        {errors.height && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {errors.height}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {calculatedBMI != null && (
+                      <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                              <CheckCircle className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <span className="text-foreground block text-sm font-bold">
+                                BMI Anda
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                Body Mass Index
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-primary text-3xl font-bold">
+                            {calculatedBMI.toFixed(1)}
                           </span>
                         </div>
                       </div>
-                      <span className="text-primary text-3xl font-bold">
-                        {calculatedBMI.toFixed(1)}
-                      </span>
-                    </div>
-                    {/* <p className="text-foreground mt-3 text-sm font-medium">
-                      {calculatedBMI < 18.5 &&
-                        '⚠️ Underweight (Berat badan kurang)'}
-                      {calculatedBMI >= 18.5 &&
-                        calculatedBMI < 25 &&
-                        '✅ Normal (Berat badan ideal)'}
-                      {calculatedBMI >= 25 &&
-                        calculatedBMI < 30 &&
-                        '⚠️ Overweight (Berat badan berlebih)'}
-                      {calculatedBMI >= 30 && '⚠️ Obese (Obesitas)'}
-                    </p> */}
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    <label className="text-foreground mb-2 block text-sm font-medium">
+                      BMI *{' '}
+                      <span className="text-muted-foreground">(kg/m²)</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min={10}
+                      max={60}
+                      value={formData.bmiDirect}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bmiDirect: e.target.value })
+                      }
+                      className="bg-background border-border text-foreground focus:ring-primary/50 w-full rounded-lg border px-4 py-2 focus:ring-2 focus:outline-none"
+                      placeholder="contoh: 24.5"
+                    />
+                    {errors.bmiDirect && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.bmiDirect}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -627,7 +703,7 @@ const PredictionApp = () => {
                   onClick={handleSubmit}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold shadow-lg transition-all"
                 >
-                  Dapatkan Hasil Prediksi
+                  Cek Status Diabetes
                   <ArrowRight className="h-5 w-5" />
                 </motion.button>
 
@@ -641,8 +717,10 @@ const PredictionApp = () => {
 
               <div className="text-muted-foreground space-y-2 text-center text-xs">
                 <p>
-                  * Semua kolom wajib diisi. BMI akan dihitung otomatis dari
-                  berat dan tinggi badan Anda.
+                  * Semua kolom wajib diisi.
+                  {useDirectBMI
+                    ? ' Masukkan BMI Anda (10–60 kg/m²).'
+                    : ' BMI dihitung otomatis dari berat dan tinggi badan.'}
                 </p>
                 <p>
                   Hasil prediksi ini hanya untuk tujuan informasi dan bukan
@@ -678,22 +756,25 @@ const PredictionApp = () => {
                   className="mx-auto mb-6"
                 >
                   <div
-                    className={`${getRiskLevel(result.probability.diabetes).bgColor} mx-auto flex h-32 w-32 items-center justify-center rounded-full`}
+                    className={`${getRiskLevel(result.probability.diabetes).bgColor} mx-auto flex h-32 w-32 flex-col items-center justify-center rounded-full`}
                   >
                     <span
                       className={`${getRiskLevel(result.probability.diabetes).color} font-heading text-4xl font-bold`}
                     >
                       {result.probability.diabetes.toFixed(1)}%
                     </span>
+                    <span
+                      className={`${getRiskLevel(result.probability.diabetes).color} text-xs font-medium opacity-90`}
+                    ></span>
                   </div>
                 </motion.div>
 
                 <h1 className="font-heading text-foreground mb-2 text-3xl font-bold">
                   {getRiskLevel(result.probability.diabetes).level}
                 </h1>
-                <p className="text-muted-foreground text-lg">
-                  Probabilitas Risiko Diabetes
-                </p>
+                {/* <p className="text-muted-foreground text-lg">
+                  Probabilitas Diabetes
+                </p> */}
               </div>
 
               <div
@@ -714,15 +795,14 @@ const PredictionApp = () => {
                 </div>
               </div>
 
-              <div className="bg-secondary/20 space-y-3 rounded-xl p-6">
+              {/* Rincian Probabilitas */}
+              {/* <div className="bg-secondary/20 space-y-3 rounded-xl p-6">
                 <h3 className="font-heading text-foreground font-bold">
-                  Rincian Probabilitas
+                  Rincian Probabilitas Diabetes
                 </h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-foreground text-sm">
-                      Tidak Diabetes
-                    </span>
+                    <span className="text-foreground text-sm">Probabilitas Tidak Diabetes</span>
                     <span className="font-bold text-green-600">
                       {result.probability.no_diabetes.toFixed(1)}%
                     </span>
@@ -748,7 +828,7 @@ const PredictionApp = () => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* <div className="border-border/40 rounded-xl border bg-blue-50 p-6">
                 <div className="flex items-start gap-3">
@@ -776,7 +856,7 @@ const PredictionApp = () => {
                   className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold shadow-lg transition-all"
                 >
                   <RotateCcw className="h-5 w-5" />
-                  Prediksi Baru
+                  Cek Data Lain
                 </motion.button>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

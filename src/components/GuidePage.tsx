@@ -103,7 +103,7 @@ const Guide = () => {
         'Jangan menunggu gejala muncul. Deteksi dini dan intervensi adalah kunci untuk mencegah komplikasi.',
       icon: <TrendingUp className="h-6 w-6" />,
       warnings: [
-        'Jika hasil prediksi menunjukkan risiko sedang hingga tinggi',
+        'Jika hasil deteksi DiaForest menunjukkan indikasi pradiabetes atau positif',
         'Jika memiliki riwayat keluarga diabetes',
         'Jika mengalami gejala: rasa haus berlebihan, sering buang air kecil, penurunan berat badan tanpa sebab, kelelahan, penglihatan kabur',
         'Jika berusia di atas 45 tahun (skrining direkomendasikan)',
@@ -307,7 +307,7 @@ const Guide = () => {
         >
           <a href="/app">
             <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-4 font-bold shadow-lg transition-all hover:scale-105">
-              Mulai Prediksi Sekarang
+              Cek Status Anda Sekarang
             </button>
           </a>
         </motion.div>
