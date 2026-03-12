@@ -14,7 +14,7 @@ export default function Home() {
       <Features />
       <QuoteSection />
       <CTACards />
-      <FeatureImportance />
+      {/* <FeatureImportance /> */}
       <Footer />
     </div>
   );
